@@ -2,7 +2,7 @@
 
 A reinforcement learning agent that learns to fight NPCs in a RuneScape Private Server (RSPS) from scratch. No rules, no scripts, just trial and error. Built in Java with a handwritten neural network and the SARSA algorithm, the agent goes from dying on its first encounter to consistently winning fights by episode 4000.
 
-[**Watch the full 2-minute training progression on YouTube**](https://youtu.be/FOudH_oC67U) (Ep 1, 200, 750, 1000, 1500, 2500, 4000, and 5000)
+<a href="https://youtu.be/FOudH_oC67U" target="_blank"><b>Watch the full 2-minute training progression on YouTube</b></a> (Ep 1, 200, 750, 1000, 1500, 2500, 4000, and 5000)
 
 ---
 
