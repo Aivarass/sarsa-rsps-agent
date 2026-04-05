@@ -1,23 +1,21 @@
 # SARSA RSPS Agent
 
-A reinforcement learning agent that learns to fight NPCs in a RuneScape Private Server (RSPS) from scratch — no rules, no scripts, just trial and error. Built in Java with a handwritten neural network and the SARSA algorithm, the agent goes from dying on its first encounter to consistently winning fights by episode 4000.
+A reinforcement learning agent that learns to fight NPCs in a RuneScape Private Server (RSPS) from scratch. No rules, no scripts, just trial and error. Built in Java with a handwritten neural network and the SARSA algorithm, the agent goes from dying on its first encounter to consistently winning fights by episode 4000.
 
-[![Full Training Progression](https://img.youtube.com/vi/FOudH_oC67U/maxresdefault.jpg)](https://youtu.be/FOudH_oC67U)
-
-> **Watch the full 2-minute training progression** — from Episode 1 through Episode 5000. The video walks through key milestones at Ep 1, 200, 750, 1000, 1500, 2500, 4000, and 5000.
+[**Watch the full 2-minute training progression on YouTube**](https://youtu.be/FOudH_oC67U) (Ep 1, 200, 750, 1000, 1500, 2500, 4000, and 5000)
 
 ---
 
 ## Before & After
 
-| Episode 1 — Agent dies immediately | Episode 4000 — Agent survives intense combat |
+| Episode 1: Agent dies immediately | Episode 4000: Agent survives intense combat |
 |:---:|:---:|
 | ![Episode 1](assets/ep1_clean.gif) | ![Episode 4000](assets/ep4000_clean.gif) |
 
-**Generalized eating behavior — the agent learned *when* to eat, not just *that* it should eat:**
+**Generalized eating behavior: the agent learned *when* to eat, not just *that* it should eat:**
 
 <p align="center">
-  <img src="assets/multi_npc.gif" alt="Agent eating against multiple NPCs" width="600"/>
+  <img src="assets/multi_npc.gif" alt="Agent eating against multiple NPCs" width="480"/>
 </p>
 
 > The eating policy transferred to multi-NPC scenarios without any retraining. The agent learned a general "eat when HP is low" strategy rather than memorizing specific fight sequences.
@@ -44,7 +42,7 @@ A reinforcement learning agent that learns to fight NPCs in a RuneScape Private 
 
 ## Motivation
 
-I wanted to see if a simple RL agent could learn something that feels intuitive to human players, knowing when to attack, when to eat, and when to just wait. RuneScape combat has tick-based timing, cooldowns, and resource management (limited food), which makes it a surprisingly interesting environment for reinforcement learning. The goal was never to build a bot — it was to see what emerges when you give a tiny neural network 5,000 fights and a simple reward signal.
+I wanted to see if a simple RL agent could learn something that feels intuitive to human players, knowing when to attack, when to eat, and when to just wait. RuneScape combat has tick-based timing, cooldowns, and resource management (limited food), which makes it a surprisingly interesting environment for reinforcement learning. The goal was never to build a bot. I wanted to see what emerges when you give a tiny neural network 5,000 fights and a simple reward signal.
 
 ---
 
@@ -53,7 +51,7 @@ I wanted to see if a simple RL agent could learn something that feels intuitive 
 The agent communicates with a RuneScape private server through a REST API. Each game tick, it observes the world state (player HP, NPC HP, inventory, combat flags), picks an action, and receives a reward based on whether it killed the NPC or died trying. Over thousands of episodes, SARSA updates teach the neural network which actions lead to better outcomes in which situations.
 
 ```
-Game Server (RSPS)  ←—  REST API  —→  SARSA Agent
+Game Server (RSPS)  <--  REST API  -->  SARSA Agent
    localhost:8081           ↕              ↕
    (game state)        JSON over HTTP   TinyQNetwork
    (execute action)                     (20 → 16 → 3)
@@ -72,9 +70,9 @@ Game Server (RSPS)  ←—  REST API  —→  SARSA Agent
                    │
 ┌──────────────────▼───────────────────────────────┐
 │  State / Action Layer                            │
-│  StateTransformer — API JSON → 20-feature vector │
-│  GameActionExecutor — action index → API call    │
-│  Action masking — prevents impossible actions    │
+│  StateTransformer: API JSON to 20-feature vector │
+│  GameActionExecutor: action index to API call    │
+│  Action masking: prevents impossible actions     │
 └──────────────────┬───────────────────────────────┘
                    │
 ┌──────────────────▼───────────────────────────────┐
@@ -90,7 +88,7 @@ Game Server (RSPS)  ←—  REST API  —→  SARSA Agent
 
 ## State Representation
 
-The agent sees the game world as a 20-dimensional feature vector, normalized to [0, 1]. I spent a fair amount of time deciding what to include — too many features and the tiny network can't learn; too few and it can't make good decisions.
+The agent sees the game world as a 20-dimensional feature vector, normalized to [0, 1]. I spent a fair amount of time deciding what to include. Too many features and the tiny network can't learn, too few and it can't make good decisions.
 
 | # | Feature | Normalization | Category |
 |---|---------|---------------|----------|
@@ -115,7 +113,7 @@ The agent sees the game world as a 20-dimensional feature vector, normalized to 
 | 19 | Food remaining | / 28 | Inventory |
 | 20 | Heal amount left | / 560 | Inventory |
 
-I initially included `combatTicks` and `eatTicks` (action cooldown timers) but removed them during experimentation — the binary `canAttack` / `canEat` flags turned out to carry the same signal with less noise.
+I initially included `combatTicks` and `eatTicks` (action cooldown timers) but removed them during experimentation. The binary `canAttack` / `canEat` flags turned out to carry the same signal with less noise.
 
 ---
 
@@ -125,11 +123,11 @@ Three actions, each followed by a 550ms delay (one game tick):
 
 | Index | Action | Description |
 |-------|--------|-------------|
-| 0 | WAIT | Do nothing — let the game tick pass |
+| 0 | WAIT | Do nothing, let the game tick pass |
 | 1 | ATTACK | Engage the current NPC target |
 | 2 | EAT | Consume one food item to restore HP |
 
-**Action masking** prevents the agent from exploring impossible actions. EAT is masked out when the player has no food or when the eat cooldown is active. This made a real difference in training speed — without masking, the agent wastes thousands of steps trying to eat with an empty inventory.
+**Action masking** prevents the agent from exploring impossible actions. EAT is masked out when the player has no food or when the eat cooldown is active. This made a real difference in training speed. Without masking, the agent wastes thousands of steps trying to eat with an empty inventory.
 
 ---
 
@@ -145,13 +143,13 @@ I kept the reward signal simple on purpose. The agent gets:
 | Overhealing (heal > missing HP) | -0.1 |
 | Redundant action while blocked | -0.01 |
 
-The small penalties for wasteful eating were important. Without them, the agent would spam EAT constantly — technically it wouldn't die, but it would burn through all its food in the first few ticks. The -0.3 / -0.1 penalties taught it to be conservative with food and only eat when it actually matters.
+The small penalties for wasteful eating were important. Without them, the agent would spam EAT constantly. It wouldn't die, but it would burn through all its food in the first few ticks. The -0.3 / -0.1 penalties taught it to be conservative with food and only eat when it actually matters.
 
 ---
 
 ## Neural Network
 
-I wrote the neural network from scratch — no TensorFlow, no PyTorch, no DL4J. Just arrays and math. Partly as a learning exercise, partly because the problem is small enough that a framework would be overkill.
+I wrote the neural network from scratch. No TensorFlow, no PyTorch, no DL4J. Just arrays and math. Partly as a learning exercise, partly because the problem is small enough that a framework would be overkill.
 
 **Architecture:** 20 → 16 → 3 (387 trainable parameters)
 
@@ -164,7 +162,7 @@ I wrote the neural network from scratch — no TensorFlow, no PyTorch, no DL4J. 
 The network supports JSON export/import, so I can save checkpoints during training and reload the best-performing weights if performance degrades.
 
 ```java
-// The core SARSA update — one line of RL theory, a few dozen lines of backprop
+// The core SARSA update: one line of RL theory, a few dozen lines of backprop
 double target = terminal ? reward : reward + gamma * predict(sNext, aNext);
 double error  = target - predict(s, a);
 applySemiGradient(s, a, clip(error, -10, 10), alpha);
@@ -185,7 +183,7 @@ applySemiGradient(s, a, clip(error, -10, 10), alpha);
 | Episode termination | 2 kills or 2 deaths |
 | Logging window | Every 10 episodes |
 
-**Best-model checkpointing:** The training loop tracks a rolling average reward. If performance drops more than 10.0 below the best recorded average, it automatically reloads the best weights. This saved me from a lot of catastrophic forgetting — the agent would occasionally stumble into a bad policy region, and the auto-reload pulls it right back.
+**Best-model checkpointing:** The training loop tracks a rolling average reward. If performance drops more than 10.0 below the best recorded average, it automatically reloads the best weights. This saved me from a lot of catastrophic forgetting. The agent would occasionally stumble into a bad policy region, and the auto-reload pulls it right back.
 
 **Logging output** (every 10 episodes):
 ```
@@ -204,18 +202,18 @@ Before the pure RL training, I experimented with **behavioral cloning** as a war
 
 **How it works:**
 
-1. Run the interactive player mode — the game renders, and I pick actions via console (`1=WAIT`, `2=ATTACK`, `3=EAT`)
+1. Run the interactive player mode. The game renders, and I pick actions via console (`1=WAIT`, `2=ATTACK`, `3=EAT`)
 2. Each (state, action) pair gets dumped to a JSON file
 3. A separate training pass uses cross-entropy loss to clone my policy into the network
 4. The pre-trained weights are loaded as a starting point for SARSA training
 
-It helped the agent skip the "die immediately every episode" phase, but I found that pure SARSA from scratch reached comparable performance within a few hundred episodes anyway. The behavioral cloning was still a valuable experiment — it showed that the state representation was expressive enough for a human policy to be captured by the network.
+It helped the agent skip the "die immediately every episode" phase, but I found that pure SARSA from scratch reached comparable performance within a few hundred episodes anyway. The behavioral cloning was still a valuable experiment. It showed that the state representation was expressive enough for a human policy to be captured by the network.
 
 ---
 
 ## Results
 
-The best model reached an **average reward of 9.712** over a 10-episode window after 5,000 training episodes. To put that in context — the theoretical maximum for 2 kills and 0 deaths is 10.0, so the agent is winning almost every fight with minimal wasted actions.
+The best model reached an **average reward of 9.712** over a 10-episode window after 5,000 training episodes. To put that in context, the theoretical maximum for 2 kills and 0 deaths is 10.0, so the agent is winning almost every fight with minimal wasted actions.
 
 **Key observations from training:**
 
@@ -225,7 +223,7 @@ The best model reached an **average reward of 9.712** over a 10-episode window a
 - **Ep 1500–3000:** Refines eating policy. Learns to eat only when HP is low.
 - **Ep 3000–5000:** Stable, high-performance policy. Wins consistently.
 
-The eating behavior is what I'm most proud of. The agent learned a general policy — "eat when HP is low and food is available" — that transfers to scenarios it was never trained on (like multi-NPC fights). It didn't memorize fight patterns; it learned the underlying concept.
+The eating behavior is what I'm most proud of. The agent learned a general policy ("eat when HP is low and food is available") that transfers to scenarios it was never trained on, like multi-NPC fights. It didn't memorize fight patterns; it learned the underlying concept.
 
 ---
 
