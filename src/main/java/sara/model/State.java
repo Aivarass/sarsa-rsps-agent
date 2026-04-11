@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class State {
 
-    public static int FEATURE_COUNT = 20;
+    public static int FEATURE_COUNT = 21;
 
     //Player
     private int currentHp;
@@ -39,7 +39,10 @@ public class State {
     private int foodCountRemaining;
     private int healAmountRemaining;
 
-    public State(int currentHp, int maxHp, int strLvl, int attackLvl, int defenceLvl, int sessionXp, int levelsIncreased, int npcKillCount, int deathCount, int inCombat, int npcLastHit, int combatTicks, int eatTicks, int canAttack, int canEat, int npcCurrentHp, int npcMaxHp, int npcMaxHit, int npcCombatLevel, int npcAttackSpeed, int foodCountRemaining, int healAmountRemaining) {
+    //Items
+    private int itemOnGround;
+
+    public State(int currentHp, int maxHp, int strLvl, int attackLvl, int defenceLvl, int sessionXp, int levelsIncreased, int npcKillCount, int deathCount, int inCombat, int npcLastHit, int combatTicks, int eatTicks, int canAttack, int canEat, int npcCurrentHp, int npcMaxHp, int npcMaxHit, int npcCombatLevel, int npcAttackSpeed, int foodCountRemaining, int healAmountRemaining, int itemOnGround) {
         this.currentHp = currentHp;
         this.maxHp = maxHp;
         this.strLvl = strLvl;
@@ -62,6 +65,7 @@ public class State {
         this.npcAttackSpeed = npcAttackSpeed;
         this.foodCountRemaining = foodCountRemaining;
         this.healAmountRemaining = healAmountRemaining;
+        this.itemOnGround = itemOnGround;
     }
 
     public double[] scale() {
@@ -142,6 +146,9 @@ public class State {
         f[i++] = scaleByCap.applyAsDouble(foodCountRemaining, FOOD_CAP);
         f[i++] = scaleByCap.applyAsDouble(healAmountRemaining, TOTAL_HEAL_CAP);
 
+        // Items
+        f[i++] = (itemOnGround == 0) ? 0 : 1.0;
+
         return f;
     }
 
@@ -158,4 +165,9 @@ public class State {
     public int getAttackLvl() { return attackLvl; }
     public int getStrLvl() { return strLvl; }
     public int getDefenceLvl() { return defenceLvl; }
+    public int getHealAmountRemaining() { return healAmountRemaining; }
+    public int getInCombat() { return inCombat; }
+    public int getCanEat() { return canEat; }
+    public int getCanAttack() { return canAttack; }
+    public int getItemOnGround() { return itemOnGround; }
 }

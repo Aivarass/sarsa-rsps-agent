@@ -19,6 +19,7 @@ public record EpisodeStats(
     int waitCount,
     int attackCount,
     int attackSuccessCount,
+    int pickupCount,
     State finalState
 ) {
     public int foodLeft() {

@@ -51,6 +51,16 @@ public class GameActionExecutor {
     }
 
     /**
+     * Pick up a ground item. Call when the agent chooses the "pickup" action.
+     * This is a long action — the player runs to the item and picks it up over several ticks.
+     *
+     * @return true if the server accepted the pickup request (2xx)
+     */
+    public boolean pickupItem() {
+        return client.post(GameApiClient.pathPickup());
+    }
+
+    /**
      * Reset game state (e.g. new episode). Mostly for internal use.
      *
      * @return true if the server returned 2xx

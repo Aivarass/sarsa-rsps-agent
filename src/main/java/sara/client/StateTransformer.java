@@ -3,6 +3,7 @@ package sara.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import sara.client.dto.CombatDto;
 import sara.client.dto.GameStateResponse;
+import sara.client.dto.GroundItemsDto;
 import sara.client.dto.InventoryDto;
 import sara.client.dto.NpcCombatDto;
 import sara.client.dto.PlayerDto;
@@ -114,12 +115,15 @@ public class StateTransformer {
         int npcCombatLevel = (npc != null && npc.hasNpc()) ? npc.getNpcCombatLevel() : -1;
         int npcAttackSpeed = (npc != null && npc.hasNpc()) ? npc.getNpcAttackSpeed() : -1;
 
+        GroundItemsDto groundItems = response.getGroundItems();
+        int itemOnGround = groundItems != null ? groundItems.getItemOnGround() : 0;
+
         return new State(
                 currentHp, maxHp, strLvl, attackLvl, defenceLvl,
                 sessionXp, levelsIncreased,
                 npcKillCount, deathCount, inCombat, npcLastHit, combatTicks, eatTicks, canAttack, canEat,
                 npcCurrentHp, npcMaxHp, npcMaxHit, npcCombatLevel, npcAttackSpeed,
-                foodCountRemaining, healAmountRemaining
+                foodCountRemaining, healAmountRemaining, itemOnGround
         );
     }
 }

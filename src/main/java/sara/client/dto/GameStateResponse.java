@@ -13,6 +13,7 @@ public class GameStateResponse {
     /** Current NPC combat target; fields are -1 when no NPC. */
     private NpcCombatDto npc;
     private List<NearbyNpcDto> nearbyNpcs;
+    private GroundItemsDto groundItems;
 
     public PlayerDto getPlayer() { return player; }
     public void setPlayer(PlayerDto player) { this.player = player; }
@@ -26,4 +27,6 @@ public class GameStateResponse {
         return nearbyNpcs != null ? nearbyNpcs : Collections.emptyList();
     }
     public void setNearbyNpcs(List<NearbyNpcDto> nearbyNpcs) { this.nearbyNpcs = nearbyNpcs; }
+    public GroundItemsDto getGroundItems() { return groundItems; }
+    public void setGroundItems(GroundItemsDto groundItems) { this.groundItems = groundItems; }
 }

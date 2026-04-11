@@ -331,7 +331,7 @@ public class SarsaRspsAgentPlayer {
             totalReward, steps, prevKills, prevDeaths,
             finalState.getLevelsIncreased(),
             finalState.getSessionXp(),
-            eatCount, episodeEatInvalid, episodeEatAtFullHp, episodeEatOvereat, episodeEatAtLowHp, episodeEatSuccess, waitCount, attackCount, episodeAttackSuccess,
+            eatCount, episodeEatInvalid, episodeEatAtFullHp, episodeEatOvereat, episodeEatAtLowHp, episodeEatSuccess, waitCount, attackCount, episodeAttackSuccess, 0,
             finalState
         );
     }

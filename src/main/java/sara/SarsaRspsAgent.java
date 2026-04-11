@@ -82,7 +82,7 @@ public class SarsaRspsAgent {
     public void executeSarsa() throws InterruptedException, IOException {
         executor = new GameActionExecutor();
         ann = new TinyQNetwork(ANN_INPUTS, ANN_NEURONS, ANN_ACTIONS);
-        loadAnn("src/main/resources/ann/run/ann_20260319_151430_20in_16n_3out_avgR9.712_ep5000.json");
+//        loadAnn("src/main/resources/ann/run/ann_20260319_151430_20in_16n_3out_avgR9.712_ep5000.json");
         if(USE_IMITATION) {
             if (Files.exists(Path.of(SarsaRspsAgentPlayer.PRETRAINED_ANN_PATH))) {
                 System.out.println("Using imitation");
@@ -127,6 +127,7 @@ public class SarsaRspsAgent {
             actionCountsWin[0] += e.waitCount();
             actionCountsWin[1] += e.attackCount();
             actionCountsWin[2] += e.eatCount();
+            actionCountsWin[3] += e.pickupCount();
             attackSuccessWin += e.attackSuccessCount();
 
             if (e.kills() >= KILLS_CAP) epWinsWin++;
@@ -163,8 +164,8 @@ public class SarsaRspsAgent {
                     avgSteps, epWinRate, eatCntWin / (double) n, eatInvalidPct, eatAtFullHpPct, eatOvereatPct, eatAtLowHpPct, eatSuccessPct, avgFoodLeft);
                 int att = actionCountsWin[1];
                 double attackOkPct = att == 0 ? 0.0 : 100.0 * attackSuccessWin / (double) att;
-                System.out.printf("           actions: WAIT=%d ATTACK=%d (ok=%d, %.1f%%) EAT=%d%n",
-                    actionCountsWin[0], att, attackSuccessWin, attackOkPct, actionCountsWin[2]);
+                System.out.printf("           actions: WAIT=%d ATTACK=%d (ok=%d, %.1f%%) EAT=%d PICKUP=%d%n",
+                    actionCountsWin[0], att, attackSuccessWin, attackOkPct, actionCountsWin[2], actionCountsWin[3]);
                 System.out.println();
 
                 // Best-model checkpoint + automated reload
@@ -209,7 +210,7 @@ public class SarsaRspsAgent {
         int currentAction = getAction(currentState, rng);
         double totalReward = 0;
         long steps = 0;
-        int waitCount = 0, attackCount = 0, eatCount = 0;
+        int waitCount = 0, attackCount = 0, eatCount = 0, pickupCount = 0;
 
         while(prevKills < KILLS_CAP && prevDeaths < DEATHS_CAP){
             steps++;
@@ -219,6 +220,7 @@ public class SarsaRspsAgent {
                 eatCount++;
                 if (currentState.getCurrentHp() < 5) episodeEatAtLowHp++;
             }
+            if (currentAction == 3) pickupCount++;
 
             StateReward sr = executeAction(currentAction);
 
@@ -267,7 +269,7 @@ public class SarsaRspsAgent {
             totalReward, steps, prevKills, prevDeaths,
             finalState.getLevelsIncreased(),
             finalState.getSessionXp(),
-            eatCount, episodeEatInvalid, episodeEatAtFullHp, episodeEatOvereat, episodeEatAtLowHp, episodeEatSuccess, waitCount, attackCount, episodeAttackSuccess,
+            eatCount, episodeEatInvalid, episodeEatAtFullHp, episodeEatOvereat, episodeEatAtLowHp, episodeEatSuccess, waitCount, attackCount, episodeAttackSuccess, pickupCount,
             finalState
         );
     }
@@ -318,6 +320,19 @@ public class SarsaRspsAgent {
                 reward += calculateReward(newState);
                 break;
             }
+            case 3 : {
+                lastAttackSuccess = false;
+                executor.pickupItem();
+                Thread.sleep(550);
+                newState = stateTransformer.fetchCurrentState();
+                if (newState.getItemOnGround() == 0) {
+                    reward += 1.0;
+                }else{
+                    reward -= 1.0;
+                }
+                reward += calculateReward(newState);
+                break;
+            }
             default:
                 lastAttackSuccess = false;
                 Thread.sleep(600);
@@ -349,6 +364,7 @@ public class SarsaRspsAgent {
         mask[0] = true;
         mask[1] = true;
         mask[2] = state.getFoodCountRemaining() > 0 && state.getCanEat() == 0;
+        mask[3] = state.getItemOnGround() > 0;
         return mask;
     }
 

@@ -108,6 +108,11 @@ public class GameApiClient {
         return PLAYER_ID + "/attack/npc";
     }
 
+    /** Path for pickup ground item: {@value}. */
+    public static String pathPickup() {
+        return PLAYER_ID + "/pickup";
+    }
+
     /** Path for reset: {@value}. */
     public static String pathReset() {
         return PLAYER_ID + "/reset";
