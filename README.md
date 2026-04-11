@@ -20,7 +20,7 @@ A reinforcement learning agent that learns to fight NPCs in a RuneScape Private 
 
 > The eating policy transferred to multi-NPC scenarios without any retraining. The agent learned a general "eat when HP is low" strategy rather than memorizing specific fight sequences.
 
-**Item pickup behavior: the agent learned the mechanics of item pickup, which is a prerequisite to further agent knowledge expansions:**
+**Item pickup behaviour: the agent learned to pick up items, which is a prerequisite for further capabilities like equipment management and inventory use.**
 
 <p align="center">
   <img src="assets/itempickup2.gif" alt="Agent eats and picks up an item" width="480"/>
